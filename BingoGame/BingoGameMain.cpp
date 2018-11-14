@@ -8,6 +8,22 @@ enum AI_MODE
 	HARD = 2
 };
 
+enum LINE_NUMBER
+{
+	H1,
+	H2,
+	H3,
+	H4,
+	H5,
+	V1,
+	V2,
+	V3,
+	V4,
+	V5,
+	LT,
+	RT,
+};
+
 #define X INT_MAX // marking
 
 int GetRandomNumber(const int &iBegin, const int &iEnd);
@@ -188,6 +204,119 @@ int main()
 
 			break;
 		case AI_MODE::HARD:
+			// AI will mark the number in the line which has most high possibility to become Bingo
+			int iLine = 0;
+			int iMarkCount = 0;
+			int iSaveCount = 0;
+
+			// find the row line which has many X(mark)
+			for (int i = 0; i < 5; ++i)
+			{
+				for (int j = 0; j < 5; ++j)
+				{
+					if (iAINumber[i * 5 + j] == X)
+						++iMarkCount;
+				}
+
+				// X should be lower then 5 cause it shouldn't be Bingo yet
+				if (iMarkCount < 5 && iSaveCount < iMarkCount)
+				{
+					iLine = i;
+					iSaveCount = iSaveCount;
+				}
+			}
+
+			// after find the row line, compare with column line
+			for (int i = 0; i < 5; ++i)
+			{
+				iMarkCount = 0;
+				for (int j = 0; j < 5; ++j)
+				{
+					if (iAINumber[j * 5 + i] == X)
+						++iMarkCount;
+				}
+
+				if (iMarkCount < 5 && iSaveCount < iMarkCount)
+				{
+					iLine = i + 5;
+					iSaveCount = iMarkCount;
+				}
+			}
+
+			iMarkCount = 0;
+			for (int i = 0; i < 25; i += 6)
+			{
+				if (iAINumber[i] == X)
+					++iMarkCount;
+			}
+			if (iMarkCount < 5 && iSaveCount < iMarkCount)
+			{
+				iLine = LINE_NUMBER::LT;
+				iSaveCount = iMarkCount;
+			}
+
+			iMarkCount = 0;
+			for (int i = 4; i < 20; i+=4)
+			{
+				if (iAINumber[i] == X)
+					++iMarkCount;
+			}
+			if (iMarkCount < 5 && iSaveCount < iMarkCount)
+			{
+				iLine = LINE_NUMBER::RT;
+				iSaveCount = iMarkCount;
+			}
+
+			//finally, in iLine, line number which has most high possibility to become Bingo
+			//now select numbers in that line
+			// in row line
+			if (iLine <= LINE_NUMBER::H5)
+			{
+				//iLine 0 ~ 4
+				for (int i = 0; i < 5; ++i)
+				{
+					if (iAINumber[iLine * 5 + i] != X)
+					{
+						iInput = iAINumber[iLine * 5 + i];
+						break;
+					}
+				}
+			}
+			else if (iLine <= LINE_NUMBER::V5) // column line
+			{
+				//iLine 5 ~ 9
+				for (int i = 0; i < 5; ++i)
+				{
+					if (iAINumber[i * 5 + (iLine - 5)] != X)
+					{
+						iInput = iAINumber[i * 5 + (iLine - 5)];
+						break;
+					}
+				}
+			}
+
+			else if (iLine == LINE_NUMBER::LT)
+			{
+				for (int i = 0; i < 25; i += 6)
+				{
+					if (iAINumber[i] != X)
+					{
+						iInput = iAINumber[i];
+						break;
+					}
+				}
+			}
+			else if (iLine == LINE_NUMBER::RT)
+			{
+				for (int i = 4; i <= 20; i += 4)
+				{
+					if (iAINumber[i] != X)
+					{
+						iInput = iAINumber[i];
+						break;
+					}
+				}
+			}
 			break;
 		dafault:
 			break;
