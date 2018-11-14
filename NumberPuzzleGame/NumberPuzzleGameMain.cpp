@@ -68,7 +68,7 @@ int main()
 					// when i == 2, j == 0 ~ 4, 2*5+(0~4) so index will be 10, 11, 12, 13, 14
 					// when i == 3, j == 0 ~ 4, 3*5+(0~4) so index will be 15, 16, 17, 18, 19
 					// when i == 4, j == 0 ~ 4, 4*5+(0~4) so index will be 20, 21, 22, 23, 24
-					// columnindex * rowCount + rowindex
+					// rowindex * ColumnCount + Columnindex
 					cout << iNumber[i * 5 + j] << "\t";
 			}
 			cout << endl;
