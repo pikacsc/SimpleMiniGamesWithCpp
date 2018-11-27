@@ -32,7 +32,22 @@ enum JOB
 };
 
 
+enum BATTLE
+{
+	BATTLE_NONE,
+	BATTLE_ATTACK,
+	BATTLE_BACK
+};
+
 #define NAME_SIZE 32
+
+struct _tagInventory
+{
+	int		iGold;
+
+};
+
+
 struct _tagPlayer
 {
 	char	strName[NAME_SIZE];
@@ -48,6 +63,7 @@ struct _tagPlayer
 	int		iMPMax;
 	int		iExp;
 	int		iLevel;
+	_tagInventory tInventory;
 };
 
 struct _tagMonster
@@ -66,6 +82,9 @@ struct _tagMonster
 	int		iGoldMin;
 	int		iGoldMax;
 };
+
+
+int GetRandomNumber(const int& a, const int& b);
 
 int main()
 {
@@ -100,6 +119,7 @@ int main()
 	tPlayer.iLevel = 1;
 	tPlayer.iExp = 0;
 	tPlayer.eJob = (JOB)iJob;
+	tPlayer.tInventory.iGold = 10000;
 
 	switch (tPlayer.eJob)
 	{
@@ -240,6 +260,7 @@ int main()
 
 				while (1)
 				{
+					system("cls");
 					switch (iMenu)
 					{
 					case MT_EASY:
@@ -254,8 +275,105 @@ int main()
 					}
 
 					//print player info
+					cout << "======================= Player =======================" << endl;
+					cout << "name : " << tPlayer.strName << "\tJob : " << tPlayer.strJobName << endl;
+					cout << "level : " << tPlayer.iLevel << "\tExp : " << tPlayer.iExp << endl;
+					cout << "Attack : " << tPlayer.iAttackMin << " - " << tPlayer.iAttackMax << endl;
+					cout << "Defense : " << tPlayer.iArmorMin << " - " << tPlayer.iArmorMax << endl;
+					cout << "HP : " << tPlayer.iHP << "/" << tPlayer.iHPMax << "\tMP : " << tPlayer.iMP << "/" << tPlayer.iMPMax << endl;
+					cout << "Gold : " << tPlayer.tInventory.iGold << "G" << endl;
+					cout << endl;
+
+					//print monster info
+					cout << "======================= Monster =======================" << endl;
+					cout << "name : " << tMonster.strName << endl;
+					cout << "level : " << tMonster.iLevel << endl;
+					cout << "Attack : " << tMonster.iAttackMin << " - " << tMonster.iAttackMax << endl;
+					cout << "Defense : " << tMonster.iArmorMin << " - " << tMonster.iArmorMax << endl;
+					cout << "HP : " << tMonster.iHP << "/" << tMonster.iHPMax << "\tMP : " << tMonster.iMP << "/" << tMonster.iMPMax << endl;
+					cout << "obtain Exp : " << tMonster.iExp << "\tobtain Gold : " << tMonster.iGoldMin << "/" << tMonster.iGoldMax << endl;
+					cout << endl;
+
+					cout << "1.Attack" << endl;
+					cout << "2.Run" << endl;
+					cout << "select menu : ";
+					cin >> iMenu;
+
+					if (cin.fail())
+					{
+						cin.clear();
+						cin.ignore(1024, '\n');
+						continue;
+					}
+
+					else if (iMenu == BATTLE_BACK)
+						break;
+
+					switch (iMenu)
+					{
+					case BATTLE_ATTACK:
+						int iAttack = GetRandomNumber(tPlayer.iAttackMin, tPlayer.iAttackMax);
+						int iArmor = GetRandomNumber(tMonster.iArmorMin, tMonster.iArmorMax);
+						int iDamage = iAttack - iArmor;
+						iDamage = (iDamage < 1) ? 1 : iDamage; // minimum damage
+
+
+						//Decrease monster HP
+						tMonster.iHP -= iDamage;
+						cout << tPlayer.strName << " attacked " << tMonster.strName << endl;
+						cout << iDamage << "damage!" << endl;
+
+						//when monster died
+						if (tMonster.iHP <= 0)
+						{
+							cout << tMonster.strName << " died" << endl;
+							tPlayer.iExp += tMonster.iExp;
+							int iGold = GetRandomNumber(tMonster.iGoldMin, tMonster.iGoldMax);
+							tPlayer.tInventory.iGold += iGold;
+							cout << tMonster.iExp << "exp obtained." << endl;
+							cout << iGold << "G obtained" << endl;
+
+
+							//reset Monster HP,MP
+							tMonster.iHP = tMonster.iHPMax;
+							tMonster.iMP = tMonster.iMPMax;
+							system("pause");
+							break;
+						}
+
+
+						//Monster attack
+						iAttack = GetRandomNumber(tMonster.iAttackMin, tMonster.iAttackMax);
+						iArmor = GetRandomNumber(tPlayer.iArmorMin, tPlayer.iArmorMax);
+						iDamage = iAttack - iArmor;
+						iDamage = (iDamage < 1) ? 1 : iDamage; // minimum damage
+
+
+						//Decrease player HP
+						tPlayer.iHP -= iDamage;
+						cout << tMonster.strName << " attacked " << tPlayer.strName << endl;
+						cout << iDamage << "damage!" << endl;
+
+						//when player died
+						if (tPlayer.iHP <= 0)
+						{
+							cout << tPlayer.strName << " died" << endl;
+							int iExp = static_cast<int>(tPlayer.iExp * 0.1f);
+							int iGold = static_cast<int>(tPlayer.tInventory.iGold * 0.1f);
+							tPlayer.iExp -= iExp;
+							tPlayer.tInventory.iGold -= iGold;
+
+							cout << iExp << "exp lost " << endl;
+							cout << iGold << "G lost" << endl;
+
+							//reset player HP,MP 
+							tPlayer.iHP = tPlayer.iHPMax;
+							tPlayer.iMP = tPlayer.iMPMax;
+						}
+						system("pause");
+					}
 				}
-				
+					break;	
 			}
 			break;
 		case MM_STORE:
