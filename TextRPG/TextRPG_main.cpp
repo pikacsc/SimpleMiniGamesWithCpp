@@ -70,6 +70,7 @@ enum EQUIP
 #define INVENTORY_MAX 20
 #define STORE_WEAPONE_MAX 3
 #define STORE_ARMOR_MAX 3
+#define LEVEL_MAX 10
 
 struct _tagItem
 {
@@ -128,6 +129,18 @@ struct _tagMonster
 	int		iGoldMax;
 };
 
+struct _tagLevelUpStatus
+{
+	int iAttackMin;
+	int iAttackMax;
+	int iArmorMin;
+	int iArmorMax;
+	int iHPMin;
+	int iHPMax;
+	int iMPMin;
+	int iMPMax;
+};
+
 
 
 int GetRandomNumber(const int& a, const int& b);
@@ -135,6 +148,37 @@ int GetRandomNumber(const int& a, const int& b);
 int main()
 {
 	_tagPlayer tPlayer = {};
+
+	const int iLevelUpExp[LEVEL_MAX] = { 4000, 10000, 20000, 35000, 50000, 70000, 100000, 150000, 200000, 400000 };
+	_tagLevelUpStatus tLvUpTable[JOB_END - 1] = {};
+	
+	//set level stat
+	tLvUpTable[JOB_KNIGHT - 1].iAttackMin = 4;
+	tLvUpTable[JOB_KNIGHT - 1].iAttackMax = 10;
+	tLvUpTable[JOB_KNIGHT - 1].iArmorMin = 8;
+	tLvUpTable[JOB_KNIGHT - 1].iArmorMax = 16;
+	tLvUpTable[JOB_KNIGHT - 1].iHPMin = 50;
+	tLvUpTable[JOB_KNIGHT - 1].iHPMax = 100;
+	tLvUpTable[JOB_KNIGHT - 1].iMPMin = 10;
+	tLvUpTable[JOB_KNIGHT - 1].iMPMax = 20;
+
+	tLvUpTable[JOB_ARCHER - 1].iAttackMin = 10;
+	tLvUpTable[JOB_ARCHER - 1].iAttackMax = 15;
+	tLvUpTable[JOB_ARCHER - 1].iArmorMin = 5;
+	tLvUpTable[JOB_ARCHER - 1].iArmorMax = 10;
+	tLvUpTable[JOB_ARCHER - 1].iHPMin = 30;
+	tLvUpTable[JOB_ARCHER - 1].iHPMax = 60;
+	tLvUpTable[JOB_ARCHER - 1].iMPMin = 30;
+	tLvUpTable[JOB_ARCHER - 1].iMPMax = 50;
+
+	tLvUpTable[JOB_WIZARD - 1].iAttackMin = 15;
+	tLvUpTable[JOB_WIZARD - 1].iAttackMax = 20;
+	tLvUpTable[JOB_WIZARD - 1].iArmorMin = 3;
+	tLvUpTable[JOB_WIZARD - 1].iArmorMax = 7;
+	tLvUpTable[JOB_WIZARD - 1].iHPMin = 20;
+	tLvUpTable[JOB_WIZARD - 1].iHPMax = 40;
+	tLvUpTable[JOB_WIZARD - 1].iMPMin = 50;
+	tLvUpTable[JOB_WIZARD - 1].iMPMax = 100;
 
 	//get player name
 	cout << "player name : ";
@@ -494,6 +538,35 @@ int main()
 							//reset Monster HP,MP
 							tMonster.iHP = tMonster.iHPMax;
 							tMonster.iMP = tMonster.iMPMax;
+
+
+							//check player level up or not
+							if (tPlayer.iExp >= iLevelUpExp[tPlayer.iLevel - 1])
+							{
+								tPlayer.iExp -= iLevelUpExp[tPlayer.iLevel - 1];
+
+								//level up
+								++tPlayer.iLevel;
+
+								cout << tPlayer.strName << " Level up!" << endl;
+
+								int iHPUp = GetRandomNumber(tLvUpTable->iHPMin, tLvUpTable->iHPMax);
+								int iMPUp = GetRandomNumber(tLvUpTable->iMPMin, tLvUpTable->iMPMax);
+
+								//stat up
+								int iJobIndex = tPlayer.eJob - 1;
+								tPlayer.iAttackMin += tLvUpTable[iJobIndex].iAttackMin;
+								tPlayer.iAttackMax += tLvUpTable[iJobIndex].iAttackMax;
+								tPlayer.iArmorMin += tLvUpTable[iJobIndex].iArmorMin;
+								tPlayer.iArmorMax += tLvUpTable[iJobIndex].iArmorMax;
+
+								tPlayer.iHPMax += iHPUp;
+								tPlayer.iMPMax += iMPUp;
+
+								tPlayer.iHP = tPlayer.iHPMax;
+								tPlayer.iMP = tPlayer.iMPMax;
+
+							}
 							system("pause");
 							break;
 						}
@@ -526,6 +599,7 @@ int main()
 							//reset player HP,MP 
 							tPlayer.iHP = tPlayer.iHPMax;
 							tPlayer.iMP = tPlayer.iMPMax;
+
 						}
 						system("pause");
 					}
